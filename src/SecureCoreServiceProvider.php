@@ -31,10 +31,6 @@ class SecureCoreServiceProvider extends ServiceProvider
 
         $kernel->pushMiddleware(SecurityHeaders::class);
 
-        if (config('secure-core.honeypot.enabled', true)) {
-            $kernel->pushMiddleware(HoneyPot::class);
-        }
-
         $this->app['router']->aliasMiddleware('secure.signature', VerifySignature::class);
 
         if (app()->environment('production') && config('app.debug')) {

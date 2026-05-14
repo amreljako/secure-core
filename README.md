@@ -64,6 +64,20 @@ class Order extends Model
 }
 ```
 
+### Important: Generating Secure URLs
+To ensure the ID is obfuscated in your routes, you must pass the entire model instance to the `route()` helper. If you pass the ID explicitly, Laravel will bypass the secure encoding.
+
+###  Incorrect (Exposes the raw ID):
+```php
+<a href="{{ route('products.show', $product->id) }}">View Product</a>
+```
+
+###  Correct (Generates secure Hashid):
+```php
+<a href="{{ route('products.show', $product) }}">View Product</a>
+```
+ **Security Note:** By passing the model instance, Laravel automatically calls the getRouteKey() method provided by our trait, ensuring that only the secure hash is exposed to the end-user.
+
 ### 3. Intelligent HoneyPot & Anti-Scanning
 A scoring-based intrusion detection system that traps automated bots. It monitors access to sensitive paths and tracks 404 error patterns. Once an IP reaches the suspicion threshold, it is automatically blacklisted.
 
