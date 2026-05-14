@@ -78,23 +78,10 @@ To ensure the ID is obfuscated in your routes, you must pass the entire model in
 ```
  **Security Note:** By passing the model instance, Laravel automatically calls the getRouteKey() method provided by our trait, ensuring that only the secure hash is exposed to the end-user.
 
-### 3. Intelligent HoneyPot & Anti-Scanning
-A scoring-based intrusion detection system that traps automated bots. It monitors access to sensitive paths and tracks 404 error patterns. Once an IP reaches the suspicion threshold, it is automatically blacklisted.
-
-### Configuration:
-
-```php
-// config/secure-core.php
-'honeypot' => [
-    'enabled' => true,
-    'threshold' => 20, // Points before auto-blocking
-    'traps' => ['.env', 'wp-login.php', 'setup.php', '.git/config'],
-],
-```
 
 
 
-### 4. API Request Signature Verification
+### 3. API Request Signature Verification
 Ensures data integrity for sensitive endpoints. This requires an `X-Secure-Signature` header, which is an HMAC-SHA256 hash of the payload using the `APP_KEY`.
 
 ### Implementation:
@@ -107,7 +94,7 @@ Route::middleware(['secure.signature'])->group(function () {
 ```
 
 
-### 5. Automated Production Shield
+### 4. Automated Production Shield
 
 When `APP_ENV` is set to `production`, SecureCore enforces strict security defaults:
 
