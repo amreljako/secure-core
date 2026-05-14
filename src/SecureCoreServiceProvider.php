@@ -14,6 +14,9 @@ class SecureCoreServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__.'/../config/secure-core.php', 'secure-core');
+        $this->app->singleton(\Amreljako\SecureCore\Security\SecureId::class, function ($app) {
+        return new \Amreljako\SecureCore\Security\SecureId();
+    });
     }
 
     public function boot()
