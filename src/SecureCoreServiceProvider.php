@@ -44,13 +44,21 @@ class SecureCoreServiceProvider extends ServiceProvider
 
     protected function setupErrorPageMasking()
     {
-        if (! class_exists(\Spatie\LaravelIgnition\Facades\Flare::class)) {
+        if (! $this->app->bound(\Spatie\LaravelIgnition\FlareMiddleware\AddSolutions::class)) {
             return;
         }
 
-        $auditor = new EnvironmentAuditor();
-        $maskedKeys = $auditor->getSensitiveEnvKeys(config('secure-core.logging.masked_fields', []));
+        try {
+            $flare = $this->app->make(\Spatie\FlareClient\Flare::class);
 
-        \Spatie\LaravelIgnition\Facades\Flare::maskSensitiveAttributes($maskedKeys);
+            $auditor = new EnvironmentAuditor();
+            $maskedKeys = $auditor->getSensitiveEnvKeys(config('secure-core.logging.masked_fields', []));
+
+            if (method_exists($flare, 'maskSensitiveAttributes')) {
+                $flare->maskSensitiveAttributes($maskedKeys);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::debug('SecureCore: Could not register Flare masking.');
+        }
     }
 }
