@@ -18,7 +18,9 @@ public function handle($request, Closure $next)
         return response()->json(['error' => 'Security Signature is missing'], 403);
     }
 
-    $payload = json_encode($request->all());
+    $data = $request->all();
+    ksort($data); 
+    $payload = json_encode($data);
     
     // I Use APP_KEY as a Private Key
     $secret = config('app.key'); 

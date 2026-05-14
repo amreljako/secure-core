@@ -5,7 +5,6 @@ return [
     |--------------------------------------------------------------------------
     | Database Encryption
     |--------------------------------------------------------------------------
-    | 
     */
     'encryption' => [
         'enabled' => env('SECURE_CORE_ENCRYPTION', true),
@@ -15,12 +14,11 @@ return [
     |--------------------------------------------------------------------------
     | Strict Log Masking
     |--------------------------------------------------------------------------
-    | 
     */
     'logging' => [
         'masking_enabled' => true,
         'masked_fields' => [
-            'password', 'password_confirmation', 'cvv', 'card_number', 'api_key', 'token'
+            'password', 'password_confirmation', 'cvv', 'card_number', 'api_key', 'token', 'secret'
         ],
     ],
 
@@ -43,10 +41,17 @@ return [
     |--------------------------------------------------------------------------
     */
     'honeypot' => [
-        'enabled' => true,
+        'enabled' => env('SECURE_CORE_HONEYPOT', true),
         'auto_block' => true,
+        'threshold' => 20, 
         'traps' => [
-            'admin', '.env', 'wp-login.php', 'setup.php', 'config.php', 'phpinfo'
+            '.env', 
+            'wp-login.php', 
+            'setup.php', 
+            'config.php', 
+            'phpinfo', 
+            '.git/config',
+            'backup.sql'
         ],
     ],
 
@@ -57,6 +62,6 @@ return [
     */
     'api' => [
         'signature_check' => env('SECURE_CORE_SIGNATURE', true),
-        'versioning_enabled' => true,
+        'signature_secret' => env('SECURE_CORE_SIGNATURE_SECRET', env('APP_KEY')),
     ],
 ];

@@ -1,6 +1,6 @@
 # SecureCore for Laravel
 
-SecureCore is a professional security hardening framework for Laravel applications. It provides multiple layers of defense to protect sensitive data, prevent unauthorized scanning, and ensure environment integrity.
+SecureCore is an advanced security hardening framework designed for Laravel applications. It provides a multi-layered defense strategy to protect sensitive data, mitigate API vulnerabilities (like BOLA), and prevent automated infrastructure scanning through intelligent intrusion detection.
 
 ---
 
@@ -20,22 +20,14 @@ php artisan vendor:publish --tag="secure-core-config"
 
 ---
 
-## Configuration
 
-The package behavior is controlled via `config/secure-core.php`. You can override these settings in your `.env` file:
+## Key Features & Implementation
 
-```env
-SECURE_CORE_ENCRYPTION=true
-SECURE_CORE_SIGNATURE_CHECK=true
-SECURE_CORE_HONEYPOT=true
-```
+### 1. Transparent Database Encryption
+Protect PII (Personally Identifiable Information) by encrypting model attributes at rest. SecureCore automatically handles encryption/decryption and includes safety checks to prevent errors with legacy non-encrypted data.
 
----
-
-## Feature Implementation Guide
-
-### 1. Database Encryption
-To encrypt sensitive data in your models, use the `HasSecureAttributes` trait and define an `$encryptable` array.
+### Usage:
+Add the  `HasSecureAttributes` trait to your model and define the `$encryptable` array.
 
 ```php
 namespace App\Models;
@@ -47,84 +39,92 @@ class User extends Model
 {
     use HasSecureAttributes;
 
-    /**
-     * Attributes to be encrypted in the database.
-     */
     protected $encryptable = [
         'phone_number',
         'national_id',
-        'secret_answer',
     ];
 }
 ```
 
-### 2. API Request Signature Verification
-Protect your API from data tampering. This requires an `X-Secure-Signature` header (HMAC-SHA256 hash of the payload using the `APP_KEY`).
+### 2. Auto-BOLA Protection (ID Obfuscation)
+Mitigates Broken Object Level Authorization (BOLA) by masking internal Database IDs using Hashids. This prevents attackers from guessing or enumerating resource IDs (e.g., changing `/api/orders/1` to `/api/orders/vj8k2p`).
 
-**Step 1: Apply Middleware in `routes/api.php`**
+### Usage:
+Apply the `SecureResource` trait to your model.
+
+
 ```php
-Route::middleware(['secure.signature'])->group(function () {
-    Route::post('/v1/account/update', [AccountController::class, 'update']);
-});
+namespace App\Models;
+
+use Amreljako\SecureCore\Traits\SecureResource;
+
+class Order extends Model
+{
+    use SecureResource;
+}
 ```
 
-**Step 2: Client-side logic (Example)**
-The client should generate the signature as follows:
-```php
-$payload = json_encode($data);
-$signature = hash_hmac('sha256', $payload, config('app.key'));
-// Send $signature in X-Secure-Signature header
-```
+### 3. Intelligent HoneyPot & Anti-Scanning
+A scoring-based intrusion detection system that traps automated bots. It monitors access to sensitive paths and tracks 404 error patterns. Once an IP reaches the suspicion threshold, it is automatically blacklisted.
 
-### 3. HoneyPot Intrusion Detection
-The HoneyPot works globally to trap automated scanners. You can customize the trap paths in the config file.
+### Configuration:
 
 ```php
 // config/secure-core.php
 'honeypot' => [
     'enabled' => true,
-    'auto_block' => true,
-    'traps' => [
-        'admin', 
-        '.env', 
-        'wp-login.php', 
-        'phpinfo'
-    ],
+    'threshold' => 20, // Points before auto-blocking
+    'traps' => ['.env', 'wp-login.php', 'setup.php', '.git/config'],
 ],
 ```
 
-### 4. Logging Masking
-Sensitive fields are automatically scrubbed from your log files. Add fields to the mask list in the config.
+
+
+### 4. API Request Signature Verification
+Ensures data integrity for sensitive endpoints. This requires an `X-Secure-Signature` header, which is an HMAC-SHA256 hash of the payload using the `APP_KEY`.
+
+### Implementation:
 
 ```php
-// config/secure-core.php
-'logging' => [
-    'masked_fields' => [
-        'password',
-        'password_confirmation',
-        'cvv',
-        'card_number',
-        'api_key',
-    ],
-],
+// Apply to sensitive routes in routes/api.php
+Route::middleware(['secure.signature'])->group(function () {
+    Route::post('/v1/payments', [PaymentController::class, 'process']);
+});
 ```
 
-### 5. Production Shield (Automated)
-When `APP_ENV` is set to `production`, SecureCore automatically:
-- Forces `APP_DEBUG` to `false`.
-- Masks sensitive Environment variables in error pages.
-- Injects Security Headers (X-Frame-Options, HSTS, etc.) into all responses.
 
----
+### 5. Automated Production Shield
 
-## Security Headers (Automatic)
-The following headers are applied to every response via middleware:
-- **X-Content-Type-Options:** nosniff
-- **X-Frame-Options:** SAMEORIGIN
-- **X-XSS-Protection:** 1; mode=block
+When `APP_ENV` is set to `production`, SecureCore enforces strict security defaults:
+
+- **Forced Debug Disable:** Overrides `APP_DEBUG` to `false`.
+- **Environment Scrubbing:** Masks sensitive ENV variables in logs and error reports.
+- **Server Masking:** Strips `X-Powered-By` and `Server` headers to reduce information exposure.
+
+
+### Security Headers (Automatic)
+The following headers are injected into every response to enforce browser-level security:
+
 - **Strict-Transport-Security:** max-age=31536000; includeSubDomains
+
 - **Content-Security-Policy:** upgrade-insecure-requests
 
+- **X-Frame-Options:** SAMEORIGIN
+
+- **X-Content-Type-Options:** nosniff
+
+- **X-XSS-Protection:** 1; mode=block
+
+
+### Configuration Summary
+The package behavior can be fine-tuned via `config/secure-core.php`. Environment variables available:
+
+
+```env
+SECURE_CORE_ENCRYPTION=true
+SECURE_CORE_SIGNATURE_CHECK=true
+SECURE_CORE_HONEYPOT=true
+```
 ---
 
 ## License
