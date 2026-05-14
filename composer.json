@@ -1,0 +1,22 @@
+{
+    "name": "amreljako/secure-core",
+    "description": "Advanced Security Hardener for Laravel Applications",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Amreljako\\SecureCore\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Amreljako\\SecureCore\\SecureCoreServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^9.0|^10.0|^11.0"
+    }
+}
