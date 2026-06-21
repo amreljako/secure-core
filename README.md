@@ -1,4 +1,8 @@
 # SecureCore for Laravel
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/amreljako/secure-core.svg?style=flat-square)](https://packagist.org/packages/amreljako/secure-core)
+[![GitHub Stars](https://img.shields.io/github/stars/amreljako/secure-core.svg?style=flat-square)](https://github.com/amreljako/secure-core/stargazers)
+[![Total Downloads](https://img.shields.io/packagist/dt/amreljako/secure-core.svg?style=flat-square)](https://packagist.org/packages/amreljako/secure-core)
+[![License](https://img.shields.io/packagist/l/amreljako/secure-core.svg?style=flat-square)](https://packagist.org/packages/amreljako/secure-core/license)
 
 SecureCore is an advanced security hardening framework designed for Laravel applications. It provides a multi-layered defense strategy to protect sensitive data, mitigate API vulnerabilities (like BOLA), and prevent automated infrastructure scanning through intelligent intrusion detection.
 
